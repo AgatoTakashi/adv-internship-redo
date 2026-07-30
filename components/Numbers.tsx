@@ -4,7 +4,7 @@ import { RiLeafLine } from "react-icons/ri";
 
 export default function Numbers() {
   return (
-    <section id="numbers">
+    <section id="numbers" className="flex flex-col items-center">
       <div className="container">
         <div className="row">
           <div className="section__title">Start growing with Summarist now</div>

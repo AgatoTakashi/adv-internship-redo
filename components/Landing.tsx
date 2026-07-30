@@ -4,14 +4,14 @@ import landing from "@/assets/landing.png";
 export default function Landing() {
   return (
     <section id="landing" className="py-10">
-      <div className="max-w-[1070px] mx-auto px-6 flex flex-col md:flex-row items-center">
+      <div className="max-w-[1070px] mx-auto px-6 flex flex-col md:flex-row">
         <div className="flex-1">
-          <h1 className="text-[#032b41] text-4xl font-bold mb-6">
+          <h1 className="text-[#032b41] text-[40px] font-bold mb-6 leading-[1.2]">
             Gain more knowledge <br className="hidden md:block" />
             in less time
           </h1>
 
-          <p className="text-[#394547] text-lg font-light leading-relaxed mb-6">
+          <p className="text-[#394547] text-[20px] font-light leading-[1.5] mb-6">
             Great summaries for busy people,
             <br className="hidden md:block" />
             individuals who barely have time to read,

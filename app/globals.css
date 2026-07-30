@@ -545,3 +545,44 @@ button:disabled {
     display: none;
   }
 }
+
+.selected .dot {
+  display: block;
+}
+
+.selected {
+  border: 4px solid #2be080;
+}
+
+/* SEPARATOR */
+.auth__separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.auth__separator--text {
+  font-size: 14px;
+  color: #6b757b;
+  position: relative;
+  padding: 0 12px;
+}
+
+.auth__separator--text::before,
+.auth__separator--text::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 80px;
+  height: 1px;
+  background-color: #d0d7d9;
+}
+
+.auth__separator--text::before {
+  left: -90px;
+}
+
+.auth__separator--text::after {
+  right: -90px;
+}

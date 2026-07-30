@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <section id="footer">
+    <section id="footer" className="flex flex-col items-center">
       <div className="container">
         <div className="row">
           <div className="footer__top--wrapper">

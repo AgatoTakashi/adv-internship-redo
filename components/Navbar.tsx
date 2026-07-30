@@ -14,12 +14,10 @@ export default function Navbar() {
         </div>
 
         <ul className="flex gap-6">
-          <li className="text-[#032b41] cursor-not-allowed">Home</li>
+          <li className="text-[#032b41] hover:text-[#2bd97c]">Login</li>
           <li className="text-[#032b41] cursor-not-allowed">About</li>
-          <li className="text-[#032b41] cursor-not-allowed">Pricing</li>
-          <li className="text-[#032b41] hover:text-[#2bd97c] cursor-pointer">
-            Login
-          </li>
+          <li className="text-[#032b41] cursor-not-allowed">Contact</li>
+          <li className="text-[#032b41] cursor-not-allowed">Help</li>
         </ul>
       </div>
     </nav>

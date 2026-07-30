@@ -2,7 +2,7 @@ import { AiFillAudio, AiFillBulb, AiFillFileText } from "react-icons/ai";
 
 export default function Features() {
   return (
-    <section id="features">
+    <section id="features" className="flex flex-col items-center">
           <div className="container">
             <div className="row">
               <div className="section__title">Understand books in few minutes</div>
