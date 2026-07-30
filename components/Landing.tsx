@@ -1,0 +1,31 @@
+import Image from "next/image";
+import landing from "@/assets/landing.png";
+
+export default function Landing() {
+  return (
+    <section id="landing" className="py-10">
+      <div className="max-w-[1070px] mx-auto px-6 flex flex-col md:flex-row items-center">
+        <div className="flex-1">
+          <h1 className="text-[#032b41] text-4xl font-bold mb-6">
+            Gain more knowledge <br className="hidden md:block" />
+            in less time
+          </h1>
+
+          <p className="text-[#394547] text-lg font-light leading-relaxed mb-6">
+            Great summaries for busy people,
+            <br className="hidden md:block" />
+            individuals who barely have time to read,
+            <br className="hidden md:block" />
+            and even people who don’t like to read.
+          </p>
+
+          <button className="btn home__cta--btn">Login</button>
+        </div>
+
+        <div className="flex-1 hidden md:flex justify-end">
+          <Image src={landing} alt="Landing" className="max-w-[400px]" />
+        </div>
+      </div>
+    </section>
+  );
+}
