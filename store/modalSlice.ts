@@ -4,22 +4,18 @@ const modalSlice = createSlice({
   name: "modal",
   initialState: {
     open: false,
-    mode: "login" as "login" | "register",
+    mode: "login",
   },
   reducers: {
-    openLogin: state => {
+    openModal: (state, action) => {
       state.open = true;
-      state.mode = "login";
+      state.mode = action.payload;
     },
-    openRegister: state => {
-      state.open = true;
-      state.mode = "register";
-    },
-    closeModal: state => {
+    closeModal: (state) => {
       state.open = false;
     },
   },
 });
 
-export const { openLogin, openRegister, closeModal } = modalSlice.actions;
+export const { openModal, closeModal } = modalSlice.actions;
 export default modalSlice.reducer;

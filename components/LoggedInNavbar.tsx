@@ -1,9 +1,16 @@
 "use client";
 
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logo from "@/assets/logo.png";
+import { signOut } from "firebase/auth";
+import { auth } from "@/app/firebase/client";
+import { useDispatch } from "react-redux";
+import { openModal } from "@/store/modalSlice";
+import { logout as logoutUser } from "@/store/authSlice";
 
 import {
   FiHome,
@@ -16,6 +23,18 @@ import {
 } from "react-icons/fi";
 
 export default function LoggedInNavbar() {
+  const user = useSelector((s: RootState) => s.auth.user);
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      dispatch(logoutUser());
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
   const pathname = usePathname();
 
   const linkClasses = (href: string) =>
@@ -89,11 +108,17 @@ export default function LoggedInNavbar() {
           <span>Help & Support</span>
         </Link>
 
-        <button className="flex items-center gap-3 text-red-500 text-[16px]">
+        {user ? (<button className="flex items-center gap-3 text-[16px]" onClick={handleLogout}>
           <div className="w-1 h-6" />
           <FiLogOut size={24} />
           <span>Logout</span>
         </button>
+        ):(
+        <button className="flex items-center gap-3 text-[16px]" onClick={() => dispatch(openModal("login"))}>
+          <div className="w-1 h-6" />
+          <FiLogOut size={24} />
+          <span>Login</span>
+        </button>)}
       </div>
     </aside>
   );

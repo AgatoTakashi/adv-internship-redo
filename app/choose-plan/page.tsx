@@ -1,9 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import Footer from "@/components/Footer";
 import FaqSection from "@/components/FaqSection";
 import HeroSection from "@/components/HeroSection";
 import PlanFeaturesWrapper from "@/components/PlansFeaturesWrapper";
+import { getCheckoutUrl } from "@/app/account/stripePayment";
+import { app } from "@/app/firebase/client"
 
 export default function ChoosePlanPage() {
+  const [selected, setSelected] = useState<"yearly" | "monthly">("yearly");
+
   const faqItems = [
     {
       question: "How does the free 7-day trial work?",
@@ -31,21 +38,40 @@ export default function ChoosePlanPage() {
     }
   ];
 
+  const handleStart = async () => {
+    if (selected === "yearly") {
+      const url = await getCheckoutUrl(app, "price_1Tz89c2OVMhobNG7VoQPiwSN");
+      window.location.href = url;
+    } else {
+      const url = await getCheckoutUrl(app, "price_1Tz8Bc2OVMhobNG7u8nWpsH2");
+      window.location.href = url;
+    }
+  };
+
   return (
     <div className="bg-white text-[#032b41]">
       {/* HERO */}
-        <HeroSection />
-        <PlanFeaturesWrapper />
+      <HeroSection />
+      <PlanFeaturesWrapper />
 
       {/* PLANS */}
       <div className="select-options flex flex-col items-center">
         <h1 className="text-center mt-[20px] mb-[30]">Choose the plan the fits you</h1>
 
         {/* Option 1 */}
-        <div className="border-4 border-[#bac8ce] w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px] selected">
+        <div
+          onClick={() => setSelected("yearly")}
+          className={`border-4 w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px] cursor-pointer ${
+            selected === "yearly" ? "border-[#2bd97c] bg-gray-100" : "border-[#bac8ce]"
+          }`}
+        >
           <div className="circle-container w-1/10">
             <div className="relative w-[24px] h-[24px] rounded-full border-2 border-black flex items-center justify-center">
-              <div className="dot absolute w-[6px] h-[6px] bg-black rounded-full hidden"></div>
+              <div
+                className={`dot absolute w-[6px] h-[6px] bg-black rounded-full ${
+                  selected === "yearly" ? "" : "hidden"
+                }`}
+              ></div>
             </div>
           </div>
           <div className="text w-9/10">
@@ -56,15 +82,24 @@ export default function ChoosePlanPage() {
         </div>
 
         {/* SEPARATOR */}
-          <div className="auth__separator">
-            <span className="auth__seperator--text">or</span>
-          </div>
+        <div className="auth__separator">
+          <span className="auth__seperator--text">or</span>
+        </div>
 
         {/* Option 2 */}
-        <div className="border-4 border-[#bac8ce] w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px]">
+        <div
+          onClick={() => setSelected("monthly")}
+          className={`border-4 w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px] cursor-pointer ${
+            selected === "monthly" ? "border-[#2bd97c] bg-gray-100" : "border-[#bac8ce]"
+          }`}
+        >
           <div className="circle-container w-1/10">
             <div className="relative w-[24px] h-[24px] rounded-full border-2 border-black flex items-center justify-center">
-              <div className="dot absolute w-[6px] h-[6px] bg-black rounded-full hidden"></div>
+              <div
+                className={`dot absolute w-[6px] h-[6px] bg-black rounded-full ${
+                  selected === "monthly" ? "" : "hidden"
+                }`}
+              ></div>
             </div>
           </div>
           <div className="text w-9/10">
@@ -77,17 +112,22 @@ export default function ChoosePlanPage() {
 
       <div className="bottom-0 bg-white sticky flex flex-col items-center pt-[32px]">
         <button
+          onClick={handleStart}
           id="trial-button"
-          className="plan-btn text-[16px] w-[300px] h-[40px] mb-[16px]"
+          className="plan-btn text-[16px] w-[300px] h-[40px] mb-[16px] bg-[#2bd97c] rounded-[5px]"
         >
-          Start your free 7-day trial
+          {selected === "yearly"
+            ? "Start your free 7-day trial"
+            : "Start your first month"}
         </button>
 
         <p
           id="trial-text"
           className="font-normal text-[12px] text-center mb-[60px]"
         >
-          Cancel your trial at any time before it ends, and you won’t be charged.
+          {selected === "yearly"
+            ? "Cancel your trial at any time before it ends, and you won’t be charged."
+            : "30-day money back guarantee, no questions asked."}
         </p>
       </div>
 

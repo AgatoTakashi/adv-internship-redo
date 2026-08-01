@@ -1,46 +1,162 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { collection, doc, onSnapshot } from "firebase/firestore";
+import { RootState } from "@/store";
+import { auth, db } from "@/app/firebase/client";
+
+type SubscriptionSummary = {
+  planName: string;
+  status: string;
+  currentPeriodEnd: string | null;
+};
+
+const normalizeSubscription = (
+  data: Record<string, unknown> | undefined
+): SubscriptionSummary | null => {
+  if (!data) return null;
+
+  const planName =
+    (data.planName as string | undefined) ||
+    (data.plan as { name?: string; display_name?: string } | undefined)?.name ||
+    (data.plan as { name?: string; display_name?: string } | undefined)?.display_name ||
+    (data.productName as string | undefined) ||
+    (data.subscription as { planName?: string } | undefined)?.planName ||
+    "";
+
+  const status =
+    (data.status as string | undefined) ||
+    (data.subscriptionStatus as string | undefined) ||
+    (data.subscription as { status?: string } | undefined)?.status ||
+    "";
+
+  const currentPeriodEnd =
+    (data.currentPeriodEnd as string | number | undefined) ||
+    (data.current_period_end as string | number | undefined) ||
+    (data.subscription as { currentPeriodEnd?: string | number } | undefined)?.currentPeriodEnd ||
+    null;
+
+  if (!planName && !status && !currentPeriodEnd) {
+    return null;
+  }
+
+  return {
+    planName: planName || "Basic",
+    status: status || "No active subscription",
+    currentPeriodEnd: currentPeriodEnd
+      ? typeof currentPeriodEnd === "number"
+        ? new Date(currentPeriodEnd * 1000).toLocaleDateString()
+        : currentPeriodEnd
+      : null,
+  };
+};
+
 export default function SettingsPage() {
+  const currentUser = useSelector((state: RootState) => state.auth.user) as
+    | { uid?: string; email?: string | null }
+    | null;
+  const [subscription, setSubscription] = useState<SubscriptionSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const uid = currentUser?.uid || auth.currentUser?.uid;
+
+    if (!uid) {
+      setSubscription(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    const unsubscribeFns: Array<() => void> = [];
+
+    const userDocUnsub = onSnapshot(doc(db, "users", uid), (snapshot) => {
+      const data = snapshot.data();
+      const normalized = normalizeSubscription(data);
+      if (normalized) {
+        setSubscription(normalized);
+        setLoading(false);
+      }
+    });
+
+    const customerDocUnsub = onSnapshot(doc(db, "customers", uid), (snapshot) => {
+      const data = snapshot.data();
+      const normalized = normalizeSubscription(data);
+      if (normalized) {
+        setSubscription(normalized);
+        setLoading(false);
+      }
+    });
+
+    const subscriptionsCollectionUnsub = onSnapshot(
+      collection(db, "customers", uid, "subscriptions"),
+      (snapshot) => {
+        const rows = snapshot.docs.map((docItem) => docItem.data());
+        const normalized = rows.length
+          ? normalizeSubscription(rows[0] as Record<string, unknown>)
+          : null;
+
+        if (normalized) {
+          setSubscription(normalized);
+          setLoading(false);
+        }
+      }
+    );
+
+    unsubscribeFns.push(userDocUnsub, customerDocUnsub, subscriptionsCollectionUnsub);
+
+    return () => {
+      unsubscribeFns.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [currentUser?.uid]);
+
+  const planLabel = subscription?.planName || "Basic";
+  const isBasicPlan = planLabel.toLowerCase().includes("basic") || !subscription;
+
   return (
     <div className="max-w-[1070px] mx-auto px-8 py-10 space-y-12">
-      {/* Page Title */}
       <h1 className="text-[32px] font-semibold text-[#032b41] border-b border-gray-300 pb-[20px]">
         Settings
       </h1>
 
-      {/* Subscription Plan Section */}
       <div className="space-y-2 border-b border-gray-300 pb-[20px]">
         <h2 className="text-[20px] font-semibold text-[#032b41]">
           Your Subscription plan
         </h2>
 
         <p className="text-[16px] text-[#032b41]">
-          Basic
+          {loading ? "Loading your plan..." : planLabel}
         </p>
 
-        <button
-          className="
-            mt-4
-            bg-[#032b41]
-            text-white
-            px-6 py-2
-            rounded-md
-            text-[16px]
-            font-medium
-          "
-        >
-          Upgrade to Premium
-        </button>
+        {subscription?.status ? (
+          <p className="text-sm text-gray-600">Status: {subscription.status}</p>
+        ) : null}
+
+        {subscription?.currentPeriodEnd ? (
+          <p className="text-sm text-gray-600">
+            Renewal date: {subscription.currentPeriodEnd}
+          </p>
+        ) : null}
+
+        {isBasicPlan && !loading ? (
+          <Link href="/choose-plan">
+            <button
+              className="mt-4 bg-[#032b41] text-white px-6 py-2 rounded-md text-[16px] font-medium"
+            >
+              Upgrade to Premium
+            </button>
+          </Link>
+        ) : null}
       </div>
 
-      {/* Email Section */}
       <div className="space-y-2">
-        <h2 className="text-[20px] font-semibold text-[#032b41]">
-          Email
-        </h2>
+        <h2 className="text-[20px] font-semibold text-[#032b41]">Email</h2>
 
         <p className="text-[16px] text-[#032b41]">
-          hueytest@hueytest.com
+          {currentUser?.email || auth.currentUser?.email || "No email available"}
         </p>
       </div>
     </div>
