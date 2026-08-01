@@ -22,6 +22,11 @@ export default function AuthModal() {
   if (!open) return null;
 
   const handleSubmit = async () => {
+    if (!auth) {
+      console.error("Firebase authentication is not configured.");
+      return;
+    }
+
     try {
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password);

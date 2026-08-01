@@ -39,6 +39,11 @@ export default function ChoosePlanPage() {
   ];
 
   const handleStart = async () => {
+    if (!app) {
+      console.error("Firebase is not configured for checkout.");
+      return;
+    }
+
     if (selected === "yearly") {
       const url = await getCheckoutUrl(app, "price_1Tz89c2OVMhobNG7VoQPiwSN");
       window.location.href = url;

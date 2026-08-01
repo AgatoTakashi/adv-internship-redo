@@ -27,6 +27,11 @@ export default function LoggedInNavbar() {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
+    if (!auth) {
+      dispatch(logoutUser());
+      return;
+    }
+
     try {
       await signOut(auth);
       dispatch(logoutUser());

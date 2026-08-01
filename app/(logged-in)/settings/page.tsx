@@ -61,9 +61,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const uid = currentUser?.uid || auth.currentUser?.uid;
+    const uid = currentUser?.uid || auth?.currentUser?.uid;
 
-    if (!uid) {
+    if (!uid || !db) {
       setSubscription(null);
       setLoading(false);
       return;
@@ -156,7 +156,7 @@ export default function SettingsPage() {
         <h2 className="text-[20px] font-semibold text-[#032b41]">Email</h2>
 
         <p className="text-[16px] text-[#032b41]">
-          {currentUser?.email || auth.currentUser?.email || "No email available"}
+          {currentUser?.email || auth?.currentUser?.email || "No email available"}
         </p>
       </div>
     </div>

@@ -12,6 +12,11 @@ function AuthStateSync() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (!auth) {
+      dispatch(clearUser());
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       const serializedUser = user
         ? {
