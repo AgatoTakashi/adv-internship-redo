@@ -5,10 +5,12 @@ import { RootState } from "@/store";
 import { closeModal } from "@/store/modalSlice";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/app/firebase/client";
+import { auth, googleProvider } from "@/app/firebase/client";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
+  signInAnonymously,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
@@ -40,10 +42,50 @@ export default function AuthModal() {
         router.push("/for-you");
       }
     } catch (err) {
-        if (err instanceof FirebaseError) {
-          console.error("Firebase Auth Error:", err.code, err.message);
-        }
+      if (err instanceof FirebaseError) {
+        console.error("Firebase Auth Error:", err.code, err.message);
       }
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!auth) {
+      console.error("Firebase authentication is not configured.");
+      return;
+    }
+
+    try {
+      await signInWithPopup(auth, googleProvider);
+      dispatch(closeModal());
+
+      if (window.location.pathname === "/") {
+        router.push("/for-you");
+      }
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        console.error("Google Auth Error:", err.code, err.message);
+      }
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    if (!auth) {
+      console.error("Firebase authentication is not configured.");
+      return;
+    }
+
+    try {
+      await signInAnonymously(auth);
+      dispatch(closeModal());
+
+      if (window.location.pathname === "/") {
+        router.push("/for-you");
+      }
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        console.error("Guest Auth Error:", err.code, err.message);
+      }
+    }
   };
 
   return (
@@ -82,6 +124,20 @@ export default function AuthModal() {
             onClick={handleSubmit}
           >
             {mode === "login" ? "Log In" : "Create Account"}
+          </button>
+
+          <button
+            className="border border-gray-300 text-[#032b41] py-3 rounded-lg text-lg font-semibold transition hover:bg-gray-50"
+            onClick={handleGoogleSignIn}
+          >
+            Continue with Google
+          </button>
+
+          <button
+            className="border border-gray-300 text-[#032b41] py-3 rounded-lg text-lg font-semibold transition hover:bg-gray-50"
+            onClick={handleGuestSignIn}
+          >
+            Continue as Guest
           </button>
         </div>
 

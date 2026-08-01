@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import { RootState } from "@/store";
 import { auth, db } from "@/app/firebase/client";
+import { openModal } from "@/store/modalSlice";
+import loginImage from "@/assets/login.png";
 
 type SubscriptionSummary = {
   planName: string;
@@ -57,6 +60,7 @@ export default function SettingsPage() {
   const currentUser = useSelector((state: RootState) => state.auth.user) as
     | { uid?: string; email?: string | null }
     | null;
+  const dispatch = useDispatch();
   const [subscription, setSubscription] = useState<SubscriptionSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -115,6 +119,28 @@ export default function SettingsPage() {
 
   const planLabel = subscription?.planName || "Basic";
   const isBasicPlan = planLabel.toLowerCase().includes("basic") || !subscription;
+
+  if (!currentUser) {
+    return (
+      <div className="max-w-[760px] mx-auto px-8 py-16 flex flex-col items-center text-center space-y-6">
+        <Image src={loginImage} alt="Login illustration" width={220} height={220} priority />
+        <div className="space-y-2">
+          <h1 className="text-[28px] font-semibold text-[#032b41]">
+            Log in to your account to see your details.
+          </h1>
+          <p className="text-[16px] text-gray-600">
+            Access your subscription, email, and account settings after signing in.
+          </p>
+        </div>
+        <button
+          onClick={() => dispatch(openModal("login"))}
+          className="bg-[#032b41] text-white px-6 py-3 rounded-md text-[16px] font-medium"
+        >
+          Log in
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[1070px] mx-auto px-8 py-10 space-y-12">
