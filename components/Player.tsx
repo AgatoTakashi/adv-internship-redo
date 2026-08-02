@@ -128,8 +128,8 @@ export default function Player({ id }: PlayerProps) {
             <div className="h-12 w-12 rounded bg-slate-700" />
           )}
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold">{book.title || "Audio book"}</div>
-            <div className="truncate text-sm">{book.author || "author"}</div>
+            <div className="text-sm font-semibold">{book.title || "Audio book"}</div>
+            <div className="text-sm">{book.author || "author"}</div>
           </div>
         </div>
 
