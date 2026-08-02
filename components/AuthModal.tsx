@@ -14,18 +14,48 @@ import {
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
+function getAuthErrorMessage(code: string) {
+  switch (code) {
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+    case "auth/user-not-found":
+      return "No account found with that email.";
+    case "auth/wrong-password":
+      return "Incorrect password. Please try again.";
+    case "auth/email-already-in-use":
+      return "That email is already registered. Please log in instead.";
+    case "auth/weak-password":
+      return "Please choose a stronger password with at least 6 characters.";
+    case "auth/popup-closed-by-user":
+      return "Google sign-in was canceled.";
+    case "auth/popup-blocked":
+      return "The popup was blocked. Please allow popups and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again later.";
+    default:
+      return "Unable to sign in right now. Please try again.";
+  }
+}
+
 export default function AuthModal() {
   const { open, mode } = useSelector((s: RootState) => s.modal);
   const dispatch = useDispatch();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   if (!open) return null;
 
   const handleSubmit = async () => {
+    setErrorMessage("");
+
     if (!auth) {
-      console.error("Firebase authentication is not configured.");
+      setErrorMessage("Firebase authentication is not configured.");
       return;
     }
 
@@ -43,14 +73,18 @@ export default function AuthModal() {
       }
     } catch (err) {
       if (err instanceof FirebaseError) {
-        console.error("Firebase Auth Error:", err.code, err.message);
+        setErrorMessage(getAuthErrorMessage(err.code));
+      } else {
+        setErrorMessage("Unable to sign in right now. Please try again.");
       }
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setErrorMessage("");
+
     if (!auth) {
-      console.error("Firebase authentication is not configured.");
+      setErrorMessage("Firebase authentication is not configured.");
       return;
     }
 
@@ -63,14 +97,18 @@ export default function AuthModal() {
       }
     } catch (err) {
       if (err instanceof FirebaseError) {
-        console.error("Google Auth Error:", err.code, err.message);
+        setErrorMessage(getAuthErrorMessage(err.code));
+      } else {
+        setErrorMessage("Unable to sign in with Google right now.");
       }
     }
   };
 
   const handleGuestSignIn = async () => {
+    setErrorMessage("");
+
     if (!auth) {
-      console.error("Firebase authentication is not configured.");
+      setErrorMessage("Firebase authentication is not configured.");
       return;
     }
 
@@ -83,7 +121,9 @@ export default function AuthModal() {
       }
     } catch (err) {
       if (err instanceof FirebaseError) {
-        console.error("Guest Auth Error:", err.code, err.message);
+        setErrorMessage(getAuthErrorMessage(err.code));
+      } else {
+        setErrorMessage("Unable to continue as guest right now.");
       }
     }
   };
@@ -103,6 +143,11 @@ export default function AuthModal() {
         </h2>
 
         <div className="flex flex-col gap-4">
+          {errorMessage ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          ) : null}
           <input
             type="email"
             placeholder="Email"

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 
 interface BookPageProps {
@@ -27,7 +28,7 @@ export default async function BookPage({ params }: BookPageProps) {
   }
 
   const book = JSON.parse(raw);
-  console.log(book.tags)
+
   return (
     <div className="flex p-[32px] mt-[8px] bg-white">
       {/* LEFT SIDE */}
@@ -69,12 +70,18 @@ export default async function BookPage({ params }: BookPageProps) {
 
         {/* Buttons */}
         <div className="flex mt-[24px]">
-          <button className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded mr-[16px]">
+          <Link
+            href={`/player/${id}`}
+            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded mr-[16px]"
+          >
             📖 Read
-          </button>
-          <button className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded">
+          </Link>
+          <Link
+            href={`/player/${id}`}
+            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded"
+          >
             🎧 Listen
-          </button>
+          </Link>
         </div>
 
         {/* Save */}

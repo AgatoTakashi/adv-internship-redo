@@ -41,6 +41,7 @@ export default function LoggedInNavbar() {
   };
 
   const pathname = usePathname();
+  const isPlayerPage = pathname?.startsWith("/player") ?? false;
 
   const linkClasses = (href: string) =>
     `
@@ -86,13 +87,13 @@ export default function LoggedInNavbar() {
           <span>My Library</span>
         </Link>
 
-        <Link href="/highlights" className={linkClasses("/highlights")}>
+        <Link href="" className={`${linkClasses("/highlights")} cursor-not-allowed`}>
           {indicator("/highlights")}
           <FiStar size={24} />
           <span>Highlights</span>
         </Link>
 
-        <Link href="/search" className={linkClasses("/search")}>
+        <Link href="" className={`${linkClasses("/search")} cursor-not-allowed`}>
           {indicator("/search")}
           <FiSearch size={24} />
           <span>Search</span>
@@ -100,14 +101,14 @@ export default function LoggedInNavbar() {
       </nav>
 
       {/* -------------------- GROUP 3: SETTINGS + HELP + LOGOUT -------------------- */}
-      <div className="mt-auto px-8 space-y-6 text-[#032b41]">
+      <div className={`mt-auto px-8 space-y-6 text-[#032b41] ${isPlayerPage ? "-translate-y-[80px]" : ""}`}>
         <Link href="/settings" className={linkClasses("/settings")}>
           {indicator("/settings")}
           <FiSettings size={24} />
           <span>Settings</span>
         </Link>
 
-        <Link href="/support" className={linkClasses("/support")}>
+        <Link href="" className={`${linkClasses("/support")} cursor-not-allowed`}>
           {indicator("/support")}
           <FiHelpCircle size={24} />
           <span>Help & Support</span>
