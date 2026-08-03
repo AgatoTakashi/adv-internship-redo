@@ -52,7 +52,7 @@ export default function LoggedInNavbar() {
 
   const indicator = (href: string) =>
     pathname === href ? (
-      <div className="w-1 h-6 bg-[#032b41] rounded-r-md" />
+      <div className="w-1 h-6 bg-[#2bd97c]" />
     ) : (
       <div className="w-1 h-6" />
     );
@@ -63,37 +63,36 @@ export default function LoggedInNavbar() {
         fixed left-0 top-0
         h-screen w-64
         bg-[#f7faf9]
-        border-r border-gray-200
         flex flex-col
-        py-8
+        py-4
       "
     >
       {/* -------------------- GROUP 1: LOGO -------------------- */}
-      <div className="px-8 flex items-center mb-10">
+      <div className="px-4 flex items-center mb-10">
         <Image src={logo} alt="Summarist" width={160} height={40} priority />
       </div>
 
       {/* -------------------- GROUP 2: MAIN NAVIGATION -------------------- */}
-      <nav className="px-8 space-y-6 text-[#032b41]">
-        <Link href="/for-you" className={linkClasses("/for-you")}>
+      <nav className="px-4 text-[#032b41]">
+        <Link href="/for-you" className={`${linkClasses("/for-you")} hover:bg-[#f0efef] py-4`}>
           {indicator("/for-you")}
           <FiHome size={24} />
           <span>For You</span>
         </Link>
 
-        <Link href="/library" className={linkClasses("/library")}>
+        <Link href="/library" className={`${linkClasses("/library")} hover:bg-[#f0efef] py-4`}>
           {indicator("/library")}
           <FiBookOpen size={24} />
           <span>My Library</span>
         </Link>
 
-        <Link href="" className={`${linkClasses("/highlights")} cursor-not-allowed`}>
+        <Link href="" className={`${linkClasses("/highlights")} hover:bg-[#f0efef] py-4 cursor-not-allowed`}>
           {indicator("/highlights")}
           <FiStar size={24} />
           <span>Highlights</span>
         </Link>
 
-        <Link href="" className={`${linkClasses("/search")} cursor-not-allowed`}>
+        <Link href="" className={`${linkClasses("/search")} hover:bg-[#f0efef] py-4 cursor-not-allowed`}>
           {indicator("/search")}
           <FiSearch size={24} />
           <span>Search</span>
@@ -101,14 +100,14 @@ export default function LoggedInNavbar() {
       </nav>
 
       {/* -------------------- GROUP 3: SETTINGS + HELP + LOGOUT -------------------- */}
-      <div className={`mt-auto px-8 space-y-6 text-[#032b41] ${isPlayerPage ? "-translate-y-[80px]" : ""}`}>
-        <Link href="/settings" className={linkClasses("/settings")}>
+      <div className={`mt-auto px-4 text-[#032b41] ${isPlayerPage ? "-translate-y-[80px]" : ""}`}>
+        <Link href="/settings" className={`${linkClasses("/settings")} hover:bg-[#f0efef] py-4`}>
           {indicator("/settings")}
           <FiSettings size={24} />
           <span>Settings</span>
         </Link>
 
-        <Link href="" className={`${linkClasses("/support")} cursor-not-allowed`}>
+        <Link href="" className={`${linkClasses("/support")} hover:bg-[#f0efef] py-4 cursor-not-allowed`}>
           {indicator("/support")}
           <FiHelpCircle size={24} />
           <span>Help & Support</span>
@@ -120,7 +119,7 @@ export default function LoggedInNavbar() {
           <span>Logout</span>
         </button>
         ):(
-        <button className="flex items-center gap-3 text-[16px]" onClick={() => dispatch(openModal("login"))}>
+        <button className="flex items-center gap-3 text-[16px] hover:bg-[#f0efef] py-4 w-full" onClick={() => dispatch(openModal("login"))}>
           <div className="w-1 h-6" />
           <FiLogOut size={24} />
           <span>Login</span>

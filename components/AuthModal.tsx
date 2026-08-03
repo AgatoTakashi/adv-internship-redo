@@ -13,33 +13,9 @@ import {
   signInAnonymously,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-
-function getAuthErrorMessage(code: string) {
-  switch (code) {
-    case "auth/invalid-email":
-      return "Please enter a valid email address.";
-    case "auth/user-disabled":
-      return "This account has been disabled.";
-    case "auth/user-not-found":
-      return "No account found with that email.";
-    case "auth/wrong-password":
-      return "Incorrect password. Please try again.";
-    case "auth/email-already-in-use":
-      return "That email is already registered. Please log in instead.";
-    case "auth/weak-password":
-      return "Please choose a stronger password with at least 6 characters.";
-    case "auth/popup-closed-by-user":
-      return "Google sign-in was canceled.";
-    case "auth/popup-blocked":
-      return "The popup was blocked. Please allow popups and try again.";
-    case "auth/network-request-failed":
-      return "Network error. Please check your connection and try again.";
-    case "auth/too-many-requests":
-      return "Too many attempts. Please try again later.";
-    default:
-      return "Unable to sign in right now. Please try again.";
-  }
-}
+import Image from "next/image";
+import google from "@/assets/google.png"
+import { FaUser } from "react-icons/fa";
 
 export default function AuthModal() {
   const { open, mode } = useSelector((s: RootState) => s.modal);
@@ -71,9 +47,10 @@ export default function AuthModal() {
       if (window.location.pathname === "/") {
         router.push("/for-you");
       }
-    } catch (err) {
-      if (err instanceof FirebaseError) {
-        setErrorMessage(getAuthErrorMessage(err.code));
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        const message = error.message || "Firebase authentication failed.";
+        setErrorMessage(message);
       } else {
         setErrorMessage("Unable to sign in right now. Please try again.");
       }
@@ -97,7 +74,9 @@ export default function AuthModal() {
       }
     } catch (err) {
       if (err instanceof FirebaseError) {
-        setErrorMessage(getAuthErrorMessage(err.code));
+        const message = err.message || "Firebase authentication failed.";
+        setErrorMessage(message);
+        console.error("Firebase auth error:", message);
       } else {
         setErrorMessage("Unable to sign in with Google right now.");
       }
@@ -121,16 +100,28 @@ export default function AuthModal() {
       }
     } catch (err) {
       if (err instanceof FirebaseError) {
-        setErrorMessage(getAuthErrorMessage(err.code));
+        const message = err.message || "Firebase authentication failed.";
+        setErrorMessage(message);
+        console.error("Firebase auth error:", message);
       } else {
         setErrorMessage("Unable to continue as guest right now.");
       }
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-lg relative">
+      <div
+        className="bg-white rounded-xl p-8 w-full max-w-md shadow-lg relative"
+        onKeyDown={handleKeyDown}
+      >
         <button
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 text-xl"
           onClick={() => dispatch(closeModal())}
@@ -141,6 +132,30 @@ export default function AuthModal() {
         <h2 className="text-3xl font-bold text-[#032b41] mb-6 text-center">
           {mode === "login" ? "Log in to Summarist" : "Sign up to Summarist"}
         </h2>
+
+        <button
+          className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#3a579d]"
+          onClick={handleGuestSignIn}
+        >
+        <FaUser className="absolute left-1 top-2 text-[32px]" /> Login as a Guest
+        </button>
+
+        {/* SEPARATOR */}
+        <div className="auth__separator">
+          <span className="auth__seperator--text">or</span>
+        </div>
+
+        <button
+          className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#4285f4]"
+          onClick={handleGoogleSignIn}
+        >
+        <Image src={google} alt="google logo" width={24} className="absolute left-1 top-1 bg-white w-[36px] p-1 rounded" />  Login with Google
+        </button>
+
+        {/* SEPARATOR */}
+        <div className="auth__separator">
+          <span className="auth__seperator--text">or</span>
+        </div>
 
         <div className="flex flex-col gap-4">
           {errorMessage ? (
@@ -165,24 +180,10 @@ export default function AuthModal() {
           />
 
           <button
-            className="bg-[#2bd97c] hover:bg-[#25c46f] text-white py-3 rounded-lg text-lg font-semibold transition"
+            className="bg-[#2bd97c] hover:bg-[#25c46f] text-black py-3 rounded-lg text-lg transition"
             onClick={handleSubmit}
           >
-            {mode === "login" ? "Log In" : "Create Account"}
-          </button>
-
-          <button
-            className="border border-gray-300 text-[#032b41] py-3 rounded-lg text-lg font-semibold transition hover:bg-gray-50"
-            onClick={handleGoogleSignIn}
-          >
-            Continue with Google
-          </button>
-
-          <button
-            className="border border-gray-300 text-[#032b41] py-3 rounded-lg text-lg font-semibold transition hover:bg-gray-50"
-            onClick={handleGuestSignIn}
-          >
-            Continue as Guest
+            {mode === "login" ? "Login" : "Create Account"}
           </button>
         </div>
 

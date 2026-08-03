@@ -13,19 +13,23 @@ import {
 
 export const getCheckoutUrl = async (
   app: FirebaseApp,
-  priceId: string
+  priceId: string,
+  planName?: string
 ): Promise<string> => {
   const auth = getAuth(app);
   const user = auth.currentUser;
   if (!user) throw new Error("User is not authenticated");
 
   const db = getFirestore(app);
-  const planName = priceId.includes("year") ? "Premium Annual" : "Premium Monthly";
+  const resolvedPlanName =
+    planName ?? (priceId.includes("year") || priceId.includes("annual")
+      ? "Premium Annual"
+      : "Premium Monthly");
 
   await setDoc(doc(db, "users", user.uid), {
     uid: user.uid,
     email: user.email,
-    planName,
+    planName: resolvedPlanName,
     planStatus: "pending",
     updatedAt: new Date().toISOString(),
   }, { merge: true });
@@ -39,7 +43,7 @@ export const getCheckoutUrl = async (
 
   const docRef = await addDoc(checkoutSessionRef, {
     price: priceId,
-    planName,
+    planName: resolvedPlanName,
     success_url: window.location.origin,
     cancel_url: window.location.origin,
   });

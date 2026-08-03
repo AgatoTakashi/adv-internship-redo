@@ -1,31 +1,55 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Book } from "@/types/Book";
+import { CiStar } from "react-icons/ci";
+import { GoClock } from "react-icons/go";
+import AudioDuration from "./AudioDuration";
 
 export default function BookCard({ book }: { book: Book }) {
   if (!book || !book.imageLink) return null;
 
+  const formatTime = (value: number) => {
+    if (!Number.isFinite(value) || value < 0) return "0:00";
+    const minutes = Math.floor(value / 60);
+    const seconds = Math.floor(value % 60);
+    return `${minutes}mins ${seconds.toString().padStart(2, "0")}secs`;
+  };
+
   return (
     <Link href={`/book/${book.id}`} className="block">
-      <div className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer w-[180px] flex-shrink-0">
-        <div className="w-full flex justify-center mb-4">
+      <div className="relative bg-white p-3 hover:bg-[#f1f6f4] transition cursor-pointer w-[196px] h-[386px] flex-shrink-0">
+        <div className="flex justify-center mb-4">
           <Image
             src={book.imageLink}
             alt={book.title}
-            width={120}
-            height={180}
-            className="rounded-md object-cover"
+            width={172}
+            height={172}
+            className=""
           />
         </div>
 
-        <h3 className="text-[#032b41] font-semibold text-[15px] leading-tight mb-1">
+        <h3 className="text-[#032b41] font-semibold text-[16px] leading-tight mb-1">
           {book.title}
         </h3>
 
-        <p className="text-[#394547] text-[13px] mb-2">{book.author}</p>
+        <p className="text-[#394547] font-light text-[14px] mb-1">{book.author}</p>
+
+        <p className="text-[14px] mb-1 leading-tight">{book.subTitle}</p>
+
+        <div className="div flex font-light">
+          <div className="div flex items-center mr-[8px]">
+            <GoClock className="text-[16px] mr-[4px]" />
+            <AudioDuration audioLink={book.audioLink} formatter={formatTime} className="text-[14px]" />
+          </div>
+          <div className="div flex items-center">
+            <CiStar className="text-[16px] mr-[4px]" /><p className="text-[14px]">{book.averageRating}</p>
+          </div>
+        </div>
 
         {book.subscriptionRequired && (
-          <span className="inline-block mt-2 text-[11px] bg-yellow-400 text-black px-2 py-1 rounded">
+          <span className="absolute top-0 right-0 text-[11px] bg-[#032b41] text-white px-2 py-1 rounded-[500px]">
             Premium
           </span>
         )}

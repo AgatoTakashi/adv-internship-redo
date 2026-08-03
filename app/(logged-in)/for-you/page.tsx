@@ -8,12 +8,14 @@ export default function ForYouPage() {
 
       <BookList
         title="Recommended For You"
+        subtitle="We think you'll like these"
         status="recommended"
         variant="horizontal"
       />
 
       <BookList
         title="Suggested Books"
+        subtitle="Browse those books"
         status="suggested"
         variant="grid"
       />

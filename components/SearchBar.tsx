@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { Book } from "@/types/Book";
+import { GoClock } from "react-icons/go";
+import AudioDuration from "./AudioDuration";
+import Image from "next/image";
+import { FaX } from "react-icons/fa6";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
@@ -62,32 +66,51 @@ export default function SearchBar() {
     };
   }, [debouncedQuery]);
 
+  const handleClose = () => {
+    setQuery("");
+    setDebouncedQuery("");
+    setResults([]);
+    setIsLoading(false);
+  };
+
   return (
-    <div className="relative w-full">
-      <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-gray-400" />
-      <input
-        type="text"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search for books"
-        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 text-sm"
-      />
+    <div className="relative w-full flex justify-end">
+      <div className="w-[340px] relative">
+        <div className="absolute w-[24px] right-3 top-1/2 -translate-y-1/2 pl-[8px] border-l">
+          {!query? <FiSearch />: <FaX onClick={handleClose} /> }
+        </div>
+        <input
+          type="text"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search for books"
+          className="w-full rounded-md border border-gray-300 pl-5 pr-3 py-2 text-sm bg-[#f1f6f4]"
+        />
+      </div>
 
       {query && (
-        <div className="absolute left-0 top-full z-20 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute right-0 top-full z-20 mt-2 p-4 max-w-[440px] w-full rounded-lg border border-gray-200 bg-white shadow-lg">
           {isLoading ? (
             <div className="px-4 py-3 text-sm text-gray-500">Searching...</div>
           ) : results.length > 0 ? (
-            <ul className="max-h-72 overflow-y-auto">
+            <ul className="max-h-[640px] overflow-y-auto">
               {results.map((book) => (
                 <li key={book.id}>
                   <Link
                     href={`/book/${book.id}`}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-[#032b41] hover:bg-gray-50"
+                    onClick={handleClose}
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-[#032b41] hover:bg-gray-50 border-b border-gray"
                   >
+                    <Image src={book.imageLink} alt="book image" width={80} height={80} />
                     <div className="min-w-0">
-                      <div className="truncate font-medium">{book.title}</div>
-                      <div className="truncate text-xs text-gray-500">{book.author}</div>
+                      <div className="font-medium text-[16px]">{book.title}</div>
+                      <div className="text-[14px] font-light text-gray-500">{book.author}</div>
+                      <div className="div flex font-light">
+                        <div className="div flex items-center mr-[8px]">
+                          <GoClock className="text-[16px] mr-[4px]" />
+                          <AudioDuration audioLink={book.audioLink} className="text-[14px]" />
+                        </div>
+                      </div>
                     </div>
                   </Link>
                 </li>

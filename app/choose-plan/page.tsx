@@ -44,13 +44,13 @@ export default function ChoosePlanPage() {
       return;
     }
 
-    if (selected === "yearly") {
-      const url = await getCheckoutUrl(app, "price_1Tz89c2OVMhobNG7VoQPiwSN");
-      window.location.href = url;
-    } else {
-      const url = await getCheckoutUrl(app, "price_1Tz8Bc2OVMhobNG7u8nWpsH2");
-      window.location.href = url;
-    }
+    const planName = selected === "yearly" ? "Premium-Plus" : "Premium";
+    const priceId = selected === "yearly"
+      ? "price_1Tz89c2OVMhobNG7VoQPiwSN"
+      : "price_1Tz8Bc2OVMhobNG7u8nWpsH2";
+
+    const url = await getCheckoutUrl(app, priceId, planName);
+    window.location.href = url;
   };
 
   return (

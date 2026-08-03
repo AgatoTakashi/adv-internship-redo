@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsPauseCircle, BsPlayCircle } from "react-icons/bs";
 import { TbRewindBackward10, TbRewindForward10 } from "react-icons/tb";
 
@@ -108,11 +108,6 @@ export default function Player({ id }: PlayerProps) {
     audio.currentTime = nextTime;
     setProgress(nextTime);
   };
-
-  const progressPercent = useMemo(() => {
-    if (!duration) return 0;
-    return (progress / duration) * 100;
-  }, [duration, progress]);
 
   if (!book) {
     return <div className="p-10 text-[#032b41]">Loading audio player...</div>;

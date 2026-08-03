@@ -1,22 +1,104 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { CiBookmark, CiStar } from "react-icons/ci";
+import { GoClock } from "react-icons/go";
+import { FiMic } from "react-icons/fi";
+import { HiOutlineLightBulb } from "react-icons/hi";
+import { LuBookOpenText } from "react-icons/lu";
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function BookPage({ params }: BookPageProps) {
+export default function BookPage({ params }: BookPageProps) {
+  const [book, setBook] = useState<any>(null);
+  const [duration, setDuration] = useState(0);
+  const [id, setId] = useState<string | null>(null);
 
-  const { id } = await params;
+  useEffect(() => {
+    let isMounted = true;
 
-  const res = await fetch(
-    `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
-    { cache: "no-store" }
-  );
+    const loadParams = async () => {
+      const resolvedParams = await params;
+      if (isMounted) {
+        setId(resolvedParams.id);
+      }
+    };
 
-  const raw = await res.text();
+    loadParams();
 
-  if (!raw) {
+    return () => {
+      isMounted = false;
+    };
+  }, [params]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    let isMounted = true;
+
+    const loadBook = async () => {
+      try {
+        const res = await fetch(
+          `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
+          { cache: "no-store" }
+        );
+
+        const raw = await res.text();
+        if (!raw || !isMounted) return;
+
+        const parsedBook = JSON.parse(raw);
+        setBook(parsedBook);
+      } catch {
+        if (isMounted) {
+          setBook(null);
+        }
+      }
+    };
+
+    loadBook();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    if (!book?.audioLink) {
+      setDuration(0);
+      return;
+    }
+
+    const audioElement = new Audio(book.audioLink);
+
+    const updateDuration = () => {
+      if (Number.isFinite(audioElement.duration)) {
+        setDuration(audioElement.duration);
+      }
+    };
+
+    audioElement.addEventListener("loadedmetadata", updateDuration);
+    audioElement.addEventListener("canplay", updateDuration);
+    audioElement.load();
+
+    return () => {
+      audioElement.pause();
+      audioElement.removeEventListener("loadedmetadata", updateDuration);
+      audioElement.removeEventListener("canplay", updateDuration);
+    };
+  }, [book?.audioLink]);
+
+  const formatTime = (value: number) => {
+    if (!Number.isFinite(value) || value < 0) return "0:00";
+    const minutes = Math.floor(value / 60);
+    const seconds = Math.floor(value % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  if (!book) {
     return (
       <div className="p-10 text-[#032b41]">
         <h1 className="text-[28px] font-semibold mb-4">Book not found</h1>
@@ -27,12 +109,10 @@ export default async function BookPage({ params }: BookPageProps) {
     );
   }
 
-  const book = JSON.parse(raw);
-
   return (
-    <div className="flex p-[32px] mt-[8px] bg-white">
+    <div className="flex p-[32px] pt-[0] bg-white">
       {/* LEFT SIDE */}
-      <div className="w-3/4 pr-10">
+      <div className="w-3/4 mr-5">
         {/* Title */}
         <h1 className="mb-[16px] text-[32px] font-semibold text-[#032b41]">
           {book.title}
@@ -44,27 +124,27 @@ export default async function BookPage({ params }: BookPageProps) {
         </p>
 
         {/* Subtitle */}
-        <p className="border-b mb-[16px] text-[20px] pb-[16px] text-[#032b41]">
+        <p className="border-b mb-[16px] text-[20px] font-light pb-[16px] text-[#032b41]">
           {book.subTitle}
         </p>
 
         {/* Rating + Duration */}
         <div className="flex pb-[16px]">
           <div className="text-[14px] font-bold flex items-center w-[200px] text-[#032b41]">
-            ⭐ {book.averageRating} ({book.totalRating} ratings)
+            <CiStar className="text-[24px] mr-[4px]" /> {book.averageRating} ({book.totalRating} ratings)
           </div>
           <div className="text-[14px] font-bold flex items-center w-[200px] text-[#032b41]">
-            ⏱ {book.audioLength}
+            <GoClock className="text-[24px] mr-[4px]" /> <p>{formatTime(duration)}</p>
           </div>
         </div>
 
         {/* Audio/Text + Key Ideas */}
         <div className="flex border-b pb-[16px]">
           <div className="text-[14px] font-bold flex items-center w-[200px] text-[#032b41]">
-            🎧 Audio & Text
+            <FiMic className="text-[24px] mr-[4px]" /> Audio & Text
           </div>
           <div className="text-[14px] font-bold flex items-center w-[200px] text-[#032b41]">
-            💡 {book.keyIdeas} Key ideas
+            <HiOutlineLightBulb className="text-[24px] mr-[4px]" /> {book.keyIdeas} Key ideas
           </div>
         </div>
 
@@ -72,21 +152,21 @@ export default async function BookPage({ params }: BookPageProps) {
         <div className="flex mt-[24px]">
           <Link
             href={`/player/${id}`}
-            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded mr-[16px]"
+            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-8 py-3 rounded mr-[16px]"
           >
-            📖 Read
+            <LuBookOpenText className="text-[24px] mr-[4px]" /> Read
           </Link>
           <Link
             href={`/player/${id}`}
-            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-4 py-2 rounded"
+            className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-8 py-3 rounded"
           >
-            🎧 Listen
+            <FiMic className="text-[24px] mr-[4px]" /> Listen
           </Link>
         </div>
 
         {/* Save */}
-        <div className="flex items-center text-blue-600 font-bold mt-[24px] mb-[32px]">
-          🔖 Add title to My Library
+        <div className="flex items-center text-blue-600 text-[18px] font-bold mt-[24px] mb-[32px]">
+          <CiBookmark className="text-[24px] mr-[4px]" /> Add title to My Library
         </div>
 
         {/* What's it about */}
@@ -97,7 +177,7 @@ export default async function BookPage({ params }: BookPageProps) {
         {/* Tags */}
         <div className="flex font-bold text-[#032b41] mb-4">
           {book.tags?.map((tag: any, i: number) => (
-            <div key={i} className="tag mr-[16px] bg-[#f7faf9] px-3 py-1 rounded">
+            <div key={i} className="tag mr-[16px] bg-[#f7faf9] px-8 py-3 rounded">
               {tag}
             </div>
           ))}
@@ -119,13 +199,13 @@ export default async function BookPage({ params }: BookPageProps) {
       </div>
 
       {/* RIGHT SIDE — Book Image */}
-      <div className="w-1/4 flex justify-center">
+      <div className="w-[300px]">
         <Image
         src={book.imageLink}
         width={300}
         height={300}
         alt="Book cover"
-        className="rounded shadow w-[300px] h-[300px] object-cover"
+        className=""
         />
       </div>
     </div>

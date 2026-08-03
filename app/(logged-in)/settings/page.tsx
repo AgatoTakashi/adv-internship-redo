@@ -122,23 +122,25 @@ export default function SettingsPage() {
 
   if (!currentUser) {
     return (
-      <div className="max-w-[760px] mx-auto px-8 py-16 flex flex-col items-center text-center space-y-6">
-        <Image src={loginImage} alt="Login illustration" width={220} height={220} priority />
-        <div className="space-y-2">
-          <h1 className="text-[28px] font-semibold text-[#032b41]">
-            Log in to your account to see your details.
-          </h1>
-          <p className="text-[16px] text-gray-600">
-            Access your subscription, email, and account settings after signing in.
-          </p>
+      <>
+        <h1 className="text-[32px] font-semibold text-[#032b41] border-b border-gray-300 pb-[20px]">
+          Settings
+        </h1>
+        <div className="max-w-[760px] mx-auto px-8 py-16 flex flex-col items-center text-center space-y-6">
+          <Image src={loginImage} alt="Login illustration" width={460} height={317} priority />
+          <div className="space-y-2">
+            <h1 className="text-[28px] font-semibold text-[#032b41]">
+              Log in to your account to see your details.
+            </h1>
+          </div>
+          <button
+            onClick={() => dispatch(openModal("login"))}
+            className="bg-[#2bd97c] text-black px-6 py-3 rounded-md text-[16px] font-medium"
+          >
+            Login
+          </button>
         </div>
-        <button
-          onClick={() => dispatch(openModal("login"))}
-          className="bg-[#032b41] text-white px-6 py-3 rounded-md text-[16px] font-medium"
-        >
-          Log in
-        </button>
-      </div>
+      </>
     );
   }
 
@@ -154,23 +156,13 @@ export default function SettingsPage() {
         </h2>
 
         <p className="text-[16px] text-[#032b41]">
-          {loading ? "Loading your plan..." : planLabel}
+          {loading ? "Basic" : planLabel}
         </p>
 
-        {subscription?.status ? (
-          <p className="text-sm text-gray-600">Status: {subscription.status}</p>
-        ) : null}
-
-        {subscription?.currentPeriodEnd ? (
-          <p className="text-sm text-gray-600">
-            Renewal date: {subscription.currentPeriodEnd}
-          </p>
-        ) : null}
-
-        {isBasicPlan && !loading ? (
+        {isBasicPlan? (
           <Link href="/choose-plan">
             <button
-              className="mt-4 bg-[#032b41] text-white px-6 py-2 rounded-md text-[16px] font-medium"
+              className="mt-4 bg-[#2bd97c] text-white px-6 py-2 rounded-md text-[16px] font-medium"
             >
               Upgrade to Premium
             </button>

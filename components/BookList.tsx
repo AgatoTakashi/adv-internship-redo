@@ -3,10 +3,12 @@ import BookCard from "./BookCard";
 
 export default async function BookList({
   title,
+  subtitle,
   status,
   variant = "grid",
 }: {
   title: string;
+  subtitle: string;
   status: "recommended" | "suggested";
   variant?: "grid" | "horizontal";
 }) {
@@ -22,20 +24,21 @@ export default async function BookList({
   if (!books || books.length === 0) return null;
 
   return (
-    <section className="py-10">
+    <section className="">
       <div className="max-w-[1070px] mx-auto px-6">
-        <h2 className="text-[22px] font-semibold text-[#032b41] mb-6">
+        <h2 className="text-[22px] font-semibold text-[#032b41]">
           {title}
         </h2>
+        <p className="font-light mb-6">{subtitle}</p>
 
         {variant === "horizontal" ? (
-          <div className="flex gap-6 overflow-x-auto pb-4">
+          <div className="flex overflow-hidden">
             {books.slice(0,5).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>
         ) : (
-          <div className="flex gap-6 overflow-x-auto pb-4">
+          <div className="flex overflow-hidden">
             {books.slice(0,5).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
