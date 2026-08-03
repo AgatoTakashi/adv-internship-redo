@@ -113,7 +113,7 @@ export default function LoggedInNavbar() {
           <span>Help & Support</span>
         </Link>
 
-        {user ? (<button className="flex items-center gap-3 text-[16px]" onClick={handleLogout}>
+        {user ? (<button className="flex items-center gap-3 text-[16px] py-4" onClick={handleLogout}>
           <div className="w-1 h-6" />
           <FiLogOut size={24} />
           <span>Logout</span>

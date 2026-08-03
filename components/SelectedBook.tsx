@@ -5,15 +5,19 @@ import { useEffect, useState } from "react";
 import { Book } from "@/types/Book";
 import { FaPlayCircle } from "react-icons/fa";
 import AudioDuration from "./AudioDuration";
+import { SelectedBookSkeleton } from "./Skeleton";
 
 export default function SelectedBook() {
   const [book, setBook] = useState<Book | null>(null);
   const [duration, setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadBook = async () => {
+      setIsLoading(true);
+
       try {
         const res = await fetch(
           "https://us-central1-summaristt.cloudfunctions.net/getBooks?status=selected",
@@ -29,6 +33,10 @@ export default function SelectedBook() {
       } catch {
         if (isMounted) {
           setBook(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -46,6 +54,10 @@ export default function SelectedBook() {
     const seconds = Math.floor(value % 60);
     return `${minutes}mins ${seconds.toString().padStart(2, "0")}secs`;
   };
+
+  if (isLoading) {
+    return <SelectedBookSkeleton />;
+  }
 
   if (!book || !book.imageLink || book.imageLink.trim() === "") {
     return (

@@ -9,12 +9,19 @@ import { RootState } from "@/store";
 import { auth, db } from "@/app/firebase/client";
 import { openModal } from "@/store/modalSlice";
 import loginImage from "@/assets/login.png";
+import { SettingsSkeleton } from "@/components/Skeleton";
 
 type SubscriptionSummary = {
   planName: string;
   status: string;
   currentPeriodEnd: string | null;
 };
+
+const getDefaultSubscription = (): SubscriptionSummary => ({
+  planName: "Basic",
+  status: "No active subscription",
+  currentPeriodEnd: null,
+});
 
 const normalizeSubscription = (
   data: Record<string, unknown> | undefined
@@ -68,7 +75,7 @@ export default function SettingsPage() {
     const uid = currentUser?.uid || auth?.currentUser?.uid;
 
     if (!uid || !db) {
-      setSubscription(null);
+      setSubscription(getDefaultSubscription());
       setLoading(false);
       return;
     }
@@ -77,22 +84,21 @@ export default function SettingsPage() {
 
     const unsubscribeFns: Array<() => void> = [];
 
+    const updateSubscription = (nextSubscription: SubscriptionSummary | null) => {
+      setSubscription(nextSubscription ?? getDefaultSubscription());
+      setLoading(false);
+    };
+
     const userDocUnsub = onSnapshot(doc(db, "users", uid), (snapshot) => {
       const data = snapshot.data();
       const normalized = normalizeSubscription(data);
-      if (normalized) {
-        setSubscription(normalized);
-        setLoading(false);
-      }
+      updateSubscription(normalized);
     });
 
     const customerDocUnsub = onSnapshot(doc(db, "customers", uid), (snapshot) => {
       const data = snapshot.data();
       const normalized = normalizeSubscription(data);
-      if (normalized) {
-        setSubscription(normalized);
-        setLoading(false);
-      }
+      updateSubscription(normalized);
     });
 
     const subscriptionsCollectionUnsub = onSnapshot(
@@ -103,10 +109,7 @@ export default function SettingsPage() {
           ? normalizeSubscription(rows[0] as Record<string, unknown>)
           : null;
 
-        if (normalized) {
-          setSubscription(normalized);
-          setLoading(false);
-        }
+        updateSubscription(normalized);
       }
     );
 
@@ -119,6 +122,10 @@ export default function SettingsPage() {
 
   const planLabel = subscription?.planName || "Basic";
   const isBasicPlan = planLabel.toLowerCase().includes("basic") || !subscription;
+
+  if (loading && currentUser) {
+    return <SettingsSkeleton />;
+  }
 
   if (!currentUser) {
     return (

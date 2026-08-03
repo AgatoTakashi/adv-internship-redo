@@ -8,6 +8,7 @@ import { GoClock } from "react-icons/go";
 import AudioDuration from "./AudioDuration";
 import Image from "next/image";
 import { FaX } from "react-icons/fa6";
+import { SearchResultsSkeleton } from "./Skeleton";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
@@ -91,7 +92,7 @@ export default function SearchBar() {
       {query && (
         <div className="absolute right-0 top-full z-20 mt-2 p-4 max-w-[440px] w-full rounded-lg border border-gray-200 bg-white shadow-lg">
           {isLoading ? (
-            <div className="px-4 py-3 text-sm text-gray-500">Searching...</div>
+            <SearchResultsSkeleton count={3} />
           ) : results.length > 0 ? (
             <ul className="max-h-[640px] overflow-y-auto">
               {results.map((book) => (
