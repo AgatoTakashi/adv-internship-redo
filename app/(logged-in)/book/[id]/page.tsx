@@ -8,6 +8,7 @@ import { GoClock } from "react-icons/go";
 import { FiMic } from "react-icons/fi";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { LuBookOpenText } from "react-icons/lu";
+import { BookDetailSkeleton } from "@/components/Skeleton";
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
@@ -17,6 +18,7 @@ export default function BookPage({ params }: BookPageProps) {
   const [book, setBook] = useState<any>(null);
   const [duration, setDuration] = useState(0);
   const [id, setId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -41,6 +43,8 @@ export default function BookPage({ params }: BookPageProps) {
     let isMounted = true;
 
     const loadBook = async () => {
+      setIsLoading(true);
+
       try {
         const res = await fetch(
           `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${id}`,
@@ -55,6 +59,10 @@ export default function BookPage({ params }: BookPageProps) {
       } catch {
         if (isMounted) {
           setBook(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -98,15 +106,12 @@ export default function BookPage({ params }: BookPageProps) {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  if (isLoading && !book) {
+    return <BookDetailSkeleton />;
+  }
+
   if (!book) {
-    return (
-      <div className="p-10 text-[#032b41]">
-        <h1 className="text-[28px] font-semibold mb-4">Book not found</h1>
-        <p className="text-[16px]">
-          The book data could not be loaded. Please try again later.
-        </p>
-      </div>
-    );
+    return <BookDetailSkeleton />;
   }
 
   return (
