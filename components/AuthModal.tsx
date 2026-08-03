@@ -133,6 +133,7 @@ export default function AuthModal() {
           {mode === "login" ? "Log in to Summarist" : "Sign up to Summarist"}
         </h2>
 
+        {mode === "login" ? (<>
         <button
           className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#3a579d]"
           onClick={handleGuestSignIn}
@@ -140,19 +141,17 @@ export default function AuthModal() {
         <FaUser className="absolute left-1 top-2 text-[32px]" /> Login as a Guest
         </button>
 
-        {/* SEPARATOR */}
         <div className="auth__separator">
           <span className="auth__seperator--text">or</span>
-        </div>
+        </div></>) : null}
 
         <button
           className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#4285f4]"
           onClick={handleGoogleSignIn}
         >
-        <Image src={google} alt="google logo" width={24} className="absolute left-1 top-1 bg-white w-[36px] p-1 rounded" />  Login with Google
+        <Image src={google} alt="google logo" width={24} className="absolute left-1 top-1 bg-white w-[36px] p-1 rounded" />  {mode === "login" ? ("Login with Google") : ("Sign up with Google")}
         </button>
 
-        {/* SEPARATOR */}
         <div className="auth__separator">
           <span className="auth__seperator--text">or</span>
         </div>
