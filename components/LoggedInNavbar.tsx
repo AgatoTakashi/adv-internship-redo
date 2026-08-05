@@ -21,10 +21,30 @@ import {
   FiHelpCircle,
   FiLogOut,
 } from "react-icons/fi";
+import { PiTextAa } from "react-icons/pi";
+import { useEffect, useState } from "react";
+
+const FONT_STORAGE_KEY = "summarist-player-font-size";
+const FONT_OPTIONS = [
+  { value: "sm", size: 20 },
+  { value: "md", size: 24 },
+  { value: "lg", size: 28 },
+  { value: "xl", size: 32 },
+] as const;
 
 export default function LoggedInNavbar() {
   const user = useSelector((s: RootState) => s.auth.user);
   const dispatch = useDispatch();
+  const [selectedFontSize, setSelectedFontSize] = useState("md");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const storedValue = window.localStorage.getItem(FONT_STORAGE_KEY);
+    if (storedValue) {
+      setSelectedFontSize(storedValue);
+    }
+  }, []);
 
   const handleLogout = async () => {
     if (!auth) {
@@ -42,6 +62,15 @@ export default function LoggedInNavbar() {
 
   const pathname = usePathname();
   const isPlayerPage = pathname?.startsWith("/player") ?? false;
+
+  const handleFontSizeChange = (value: string) => {
+    setSelectedFontSize(value);
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(FONT_STORAGE_KEY, value);
+      window.dispatchEvent(new Event("summarist-player-font-size-change"));
+    }
+  };
 
   const linkClasses = (href: string) =>
     `
@@ -97,6 +126,28 @@ export default function LoggedInNavbar() {
           <FiSearch size={24} />
           <span>Search</span>
         </Link>
+        {isPlayerPage ? (
+          <div className="font-changer py-4 px-5 flex items-center">
+            {FONT_OPTIONS.map((option) => {
+              const isSelected = selectedFontSize === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => handleFontSizeChange(option.value)}
+                  className={`mr-5 p-1 rounded-sm transition-all ${
+                    isSelected ? "bg-[#2bd97c]/15" : "bg-transparent"
+                  }`}
+                  aria-pressed={isSelected}
+                >
+                  <div className={`flex items-center justify-center border-b-4 h-6 ${isSelected ? "border-[#2bd97c]" : "border-transparent"}`}>
+                    <PiTextAa size={option.size} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </nav>
 
       {/* -------------------- GROUP 3: SETTINGS + HELP + LOGOUT -------------------- */}

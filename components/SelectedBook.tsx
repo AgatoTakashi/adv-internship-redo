@@ -9,7 +9,6 @@ import { SelectedBookSkeleton } from "./Skeleton";
 
 export default function SelectedBook() {
   const [book, setBook] = useState<Book | null>(null);
-  const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

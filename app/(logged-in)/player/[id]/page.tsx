@@ -8,6 +8,14 @@ import { RootState } from "@/store";
 import { openModal } from "@/store/modalSlice";
 import loginImage from "@/assets/login.png";
 
+const FONT_STORAGE_KEY = "summarist-player-font-size";
+const SUMMARY_FONT_CLASSES: Record<string, string> = {
+  sm: "text-[16px]",
+  md: "text-[18px]",
+  lg: "text-[20px]",
+  xl: "text-[24px]",
+};
+
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
@@ -19,8 +27,22 @@ export default function PlayerPage({ params }: BookPageProps) {
   const dispatch = useDispatch();
   const [book, setBook] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [summaryFontClass, setSummaryFontClass] = useState("text-[18px]");
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedValue = window.localStorage.getItem(FONT_STORAGE_KEY);
+      setSummaryFontClass(SUMMARY_FONT_CLASSES[storedValue ?? "md"] || "text-[18px]");
+    }
+
+    const handleFontSizeChange = () => {
+      if (typeof window === "undefined") return;
+      const storedValue = window.localStorage.getItem(FONT_STORAGE_KEY);
+      setSummaryFontClass(SUMMARY_FONT_CLASSES[storedValue ?? "md"] || "text-[18px]");
+    };
+
+    window.addEventListener("summarist-player-font-size-change", handleFontSizeChange);
+
     let isMounted = true;
 
     const loadBook = async () => {
@@ -56,6 +78,7 @@ export default function PlayerPage({ params }: BookPageProps) {
 
     return () => {
       isMounted = false;
+      window.removeEventListener("summarist-player-font-size-change", handleFontSizeChange);
     };
   }, [params]);
 
@@ -99,7 +122,7 @@ export default function PlayerPage({ params }: BookPageProps) {
       <h1 className="text-[32px] font-semibold text-[#032b41] border-b border-gray-300 pb-[20px]">
         {book.title}
       </h1>
-      <p className="whitespace-pre-line">{book.summary}</p>
+      <p className={`whitespace-pre-line ${summaryFontClass}`}>{book.summary}</p>
       <Player id={book.id} />
     </div>
   );
