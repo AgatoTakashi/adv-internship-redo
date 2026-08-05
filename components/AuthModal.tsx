@@ -132,6 +132,7 @@ export default function AuthModal() {
           {mode === "login" ? "Log in to Summarist" : "Sign up to Summarist"}
         </h2>
 
+        {mode === "login" ? (<>
         <button
           className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#3a579d]"
           onClick={handleGuestSignIn}
@@ -143,7 +144,7 @@ export default function AuthModal() {
         <div className="auth__separator">
           <span className="auth__seperator--text">or</span>
         </div>
-
+        </>) : null}
         <button
           className="relative border border-gray-300 text-white w-full py-2 rounded-lg text-lg font-semibold transition hover:bg-gray-50 bg-[#4285f4]"
           onClick={handleGoogleSignIn}
