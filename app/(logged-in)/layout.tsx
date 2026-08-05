@@ -12,7 +12,7 @@ export default function LoggedInLayout({
       <LoggedInNavbar />
 
       {/* Main content */}
-      <main className="ml-64 w-full bg-white">   {/* ✔ white background */}
+      <main className="ml-64 w-full bg-white">
         {/* Search bar */}
         <div className="border-b border-gray-300 h-[80px] flex items-center">
           <div className="max-w-[1070px] mx-auto px-8 w-full">

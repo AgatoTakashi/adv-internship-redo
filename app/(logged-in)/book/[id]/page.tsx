@@ -9,16 +9,26 @@ import { FiMic } from "react-icons/fi";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { LuBookOpenText } from "react-icons/lu";
 import { BookDetailSkeleton } from "@/components/Skeleton";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { openModal } from "@/store/modalSlice";
+import { db } from "@/app/firebase/client";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default function BookPage({ params }: BookPageProps) {
+  const currentUser = useSelector((state: RootState) => state.auth.user) as
+    | { uid?: string; email?: string | null }
+    | null;
+  const dispatch = useDispatch();
   const [book, setBook] = useState<any>(null);
   const [duration, setDuration] = useState(0);
   const [id, setId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [planName, setPlanName] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -99,11 +109,84 @@ export default function BookPage({ params }: BookPageProps) {
     };
   }, [book?.audioLink]);
 
+  useEffect(() => {
+    const uid = currentUser?.uid;
+
+    if (!uid || !db) {
+      setPlanName("");
+      return;
+    }
+
+    let isMounted = true;
+
+    const resolvePlanName = async () => {
+      if (!db) {
+        setPlanName("");
+        return;
+      }
+
+      try {
+        const userDocRef = doc(db, "users", uid);
+        const customerDocRef = doc(db, "customers", uid);
+        const subscriptionsRef = collection(db, "customers", uid, "subscriptions");
+
+        const [userSnap, customerSnap, subscriptionsSnap] = await Promise.all([
+          getDoc(userDocRef),
+          getDoc(customerDocRef),
+          getDocs(subscriptionsRef),
+        ]);
+
+        if (!isMounted) return;
+
+        const candidates = [
+          (userSnap.data()?.planName as string | undefined) ||
+            (userSnap.data()?.plan as { name?: string; display_name?: string } | undefined)?.name ||
+            "",
+          (customerSnap.data()?.planName as string | undefined) ||
+            (customerSnap.data()?.plan as { name?: string; display_name?: string } | undefined)?.name ||
+            "",
+          (subscriptionsSnap.docs[0]?.data()?.planName as string | undefined) ||
+            (subscriptionsSnap.docs[0]?.data()?.plan as { name?: string; display_name?: string } | undefined)?.name ||
+            "",
+        ];
+
+        const resolvedPlan = candidates.find((value) => Boolean(value)) || "";
+        setPlanName(resolvedPlan);
+      } catch {
+        if (isMounted) {
+          setPlanName("");
+        }
+      }
+    };
+
+    resolvePlanName();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser?.uid]);
+
   const formatTime = (value: number) => {
     if (!Number.isFinite(value) || value < 0) return "0:00";
     const minutes = Math.floor(value / 60);
     const seconds = Math.floor(value % 60);
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const normalizedPlan = planName.trim().toLowerCase();
+  const hasPremiumAccess = normalizedPlan.includes("premium") || normalizedPlan.includes("plus");
+
+  const handleAction = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!currentUser) {
+      event.preventDefault();
+      dispatch(openModal("login"));
+      return;
+    }
+
+    if (book?.subscriptionRequired && !hasPremiumAccess) {
+      event.preventDefault();
+      window.location.href = "/choose-plan";
+    }
   };
 
   if (isLoading && !book) {
@@ -156,13 +239,15 @@ export default function BookPage({ params }: BookPageProps) {
         {/* Buttons */}
         <div className="flex mt-[24px]">
           <Link
-            href={`/player/${id}`}
+            href={book?.subscriptionRequired && !hasPremiumAccess ? "/choose-plan" : `/player/${id}`}
+            onClick={handleAction}
             className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-8 py-3 rounded mr-[16px]"
           >
             <LuBookOpenText className="text-[24px] mr-[4px]" /> Read
           </Link>
           <Link
-            href={`/player/${id}`}
+            href={book?.subscriptionRequired && !hasPremiumAccess ? "/choose-plan" : `/player/${id}`}
+            onClick={handleAction}
             className="flex items-center justify-center text-[16px] text-white bg-[#032b41] px-8 py-3 rounded"
           >
             <FiMic className="text-[24px] mr-[4px]" /> Listen

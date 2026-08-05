@@ -1,5 +1,5 @@
 import Image from "next/image";
-import pricing from "@/assets/pricing-top.png"; // adjust path if needed
+import pricing from "@/assets/pricing-top.png";
 
 export default function HeroSection() {
   return (

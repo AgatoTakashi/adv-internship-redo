@@ -136,7 +136,7 @@ export default function ChoosePlanPage() {
         </p>
       </div>
 
-      {/* FAQ (refactored) */}
+      {/* FAQ */}
       <FaqSection items={faqItems} />
 
       {/* FOOTER */}

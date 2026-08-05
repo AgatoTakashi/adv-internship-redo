@@ -10,7 +10,6 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
-  signInAnonymously,
 } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import Image from "next/image";
@@ -92,7 +91,7 @@ export default function AuthModal() {
     }
 
     try {
-      await signInAnonymously(auth);
+      await signInWithEmailAndPassword(auth, "guest@gmail.com", "guest123");
       dispatch(closeModal());
 
       if (window.location.pathname === "/") {
