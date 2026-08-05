@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Book } from "@/types/Book";
 import { FaPlayCircle } from "react-icons/fa";
@@ -70,7 +71,10 @@ export default function SelectedBook() {
     <section className="">
       <div className="max-w-[1070px] mx-auto px-6 gap-10 items-center">
         <p className="text-[22px] font-semibold text-[#032b41] mb-6">Selected just for you</p>
-        <div className="flex w-2/3 bg-[#fbefd6] p-[20px] rounded-md leading-[1.2]">
+        <Link
+          href={`/book/${book.id}`}
+          className="flex w-2/3 bg-[#fbefd6] p-[20px] rounded-md leading-[1.2] cursor-pointer hover:opacity-90 transition-opacity"
+        >
           {book.subTitle}
           <div className="w-[1px] bg-[#bac8ce] mx-[20px]"></div>
           <Image
@@ -89,7 +93,7 @@ export default function SelectedBook() {
               <AudioDuration audioLink={book.audioLink} formatter={formatTime} className="ml-1" />
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </section>
   );
