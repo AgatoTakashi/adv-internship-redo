@@ -116,9 +116,13 @@ export default function AuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+      onClick={() => dispatch(closeModal())}
+    >
       <div
-        className="bg-white rounded-xl p-8 w-full max-w-md shadow-lg relative"
+        className="relative w-full max-w-md rounded-xl bg-white p-8 shadow-lg"
+        onClick={(event) => event.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
         <button
