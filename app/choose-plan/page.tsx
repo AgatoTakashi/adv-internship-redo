@@ -66,7 +66,7 @@ export default function ChoosePlanPage() {
         {/* Option 1 */}
         <div
           onClick={() => setSelected("yearly")}
-          className={`border-4 w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px] cursor-pointer ${
+          className={`border-4 w-full max-w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] my-[16px] cursor-pointer ${
             selected === "yearly" ? "border-[#2bd97c] bg-gray-100" : "border-[#bac8ce]"
           }`}
         >
@@ -94,7 +94,7 @@ export default function ChoosePlanPage() {
         {/* Option 2 */}
         <div
           onClick={() => setSelected("monthly")}
-          className={`border-4 w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] mb-[16px] cursor-pointer ${
+          className={`border-4 w-full max-w-[680px] h-[140px] rounded-[5px] flex gap-[20px] p-[24px] my-[16px] cursor-pointer ${
             selected === "monthly" ? "border-[#2bd97c] bg-gray-100" : "border-[#bac8ce]"
           }`}
         >
