@@ -5,7 +5,7 @@ interface NavbarState {
 }
 
 const initialState: NavbarState = {
-  isVisible: false,
+  isVisible: false, // initial state
 };
 
 const navbarSlice = createSlice({
