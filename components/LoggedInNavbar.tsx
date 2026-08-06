@@ -93,7 +93,7 @@ export default function LoggedInNavbar() {
         h-screen w-64
         bg-[#f7faf9]
         flex flex-col
-        py-4
+        py-4 z-50 hidden md:flex
       "
     >
       {/* -------------------- GROUP 1: LOGO -------------------- */}
