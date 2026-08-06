@@ -73,7 +73,7 @@ export default function SelectedBook() {
         <p className="text-[22px] font-semibold text-[#032b41] mb-6">Selected just for you</p>
         <Link
           href={`/book/${book.id}`}
-          className="flex md:w-2/3 bg-[#fbefd6] p-[20px] rounded-md leading-[1.2] cursor-pointer hover:opacity-90 transition-opacity"
+          className="flex md:w-2/3 bg-[#fbefd6] p-[20px] rounded-md leading-[1.2] cursor-pointer hover:opacity-90 transition-opacity min-w-[390px]"
         >
           {book.subTitle}
           <div className="w-[1px] bg-[#bac8ce] mx-[20px]"></div>

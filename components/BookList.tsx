@@ -94,7 +94,7 @@ export default function BookList({
           {books.length} {books.length === 1 ? "book" : "books"}
         </p>
 
-        <div className="flex gap-4 whitespace-nowrap pb-2">
+        <div className="flex flex-wrap gap-4 whitespace-nowrap pb-2">
           {books.slice(0, 5).map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
