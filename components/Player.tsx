@@ -114,8 +114,8 @@ export default function Player({ id }: PlayerProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-[#042330] px-4 py-3 text-white shadow-lg">
-      <div className="flex w-full items-center gap-4">
+    <div className="fixed bottom-0 left-0 w-full bg-[#042330] px-4 py-3 text-white shadow-lg z-50">
+      <div className="flex flex-col w-full items-center gap-4 md:flex-row">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {book.imageLink ? (
             <Image src={book.imageLink} width={48} height={48} alt="book image" className="rounded" />

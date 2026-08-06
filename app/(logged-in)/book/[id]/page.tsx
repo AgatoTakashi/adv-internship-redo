@@ -198,7 +198,7 @@ export default function BookPage({ params }: BookPageProps) {
   }
 
   return (
-    <div className="flex p-[32px] pt-[0] bg-white">
+    <div className="flex p-[32px] pt-[0] bg-white flex-col-reverse lg:flex-row">
       {/* LEFT SIDE */}
       <div className="w-3/4 mr-5">
         {/* Title */}

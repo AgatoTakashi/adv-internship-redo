@@ -11,6 +11,7 @@ import { auth } from "@/app/firebase/client";
 import { useDispatch } from "react-redux";
 import { openModal } from "@/store/modalSlice";
 import { logout as logoutUser } from "@/store/authSlice";
+import { setNavbarVisibility } from "@/store/navbarSlice";
 
 import {
   FiHome,
@@ -34,6 +35,7 @@ const FONT_OPTIONS = [
 
 export default function LoggedInNavbar() {
   const user = useSelector((s: RootState) => s.auth.user);
+  const isVisible = useSelector((s: RootState) => s.navbar.isVisible);
   const dispatch = useDispatch();
   const [selectedFontSize, setSelectedFontSize] = useState("md");
 
@@ -46,15 +48,21 @@ export default function LoggedInNavbar() {
     }
   }, []);
 
+  const closeNavbar = () => {
+    dispatch(setNavbarVisibility(false));
+  };
+
   const handleLogout = async () => {
     if (!auth) {
       dispatch(logoutUser());
+      closeNavbar();
       return;
     }
 
     try {
       await signOut(auth);
       dispatch(logoutUser());
+      closeNavbar();
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -65,6 +73,7 @@ export default function LoggedInNavbar() {
 
   const handleFontSizeChange = (value: string) => {
     setSelectedFontSize(value);
+    closeNavbar();
 
     if (typeof window !== "undefined") {
       window.localStorage.setItem(FONT_STORAGE_KEY, value);
@@ -87,29 +96,37 @@ export default function LoggedInNavbar() {
     );
 
   return (
-    <aside
-      className="
-        fixed left-0 top-0
-        h-screen w-64
-        bg-[#f7faf9]
-        flex flex-col
-        py-4
-      "
-    >
+    <>
+      <div
+        className={`fixed inset-0 bg-black/30 z-40 md:hidden ${isVisible ? "block" : "hidden"}`}
+        onClick={closeNavbar}
+      />
+
+      <aside
+        className={`
+          fixed left-0 top-0
+          h-screen md:w-64 w-5/6
+          bg-[#f7faf9]
+          flex flex-col
+          py-4 z-50
+          ${isVisible ? "flex" : "hidden"}
+          md:flex
+        `}
+      >
       {/* -------------------- GROUP 1: LOGO -------------------- */}
-      <div className="px-4 flex items-center mb-10">
+      <div className="px-4 flex items-center justify-center mb-10">
         <Image src={logo} alt="Summarist" width={160} height={40} priority />
       </div>
 
       {/* -------------------- GROUP 2: MAIN NAVIGATION -------------------- */}
       <nav className="px-4 text-[#032b41]">
-        <Link href="/for-you" className={`${linkClasses("/for-you")} hover:bg-[#f0efef] py-4`}>
+        <Link href="/for-you" onClick={closeNavbar} className={`${linkClasses("/for-you")} hover:bg-[#f0efef] py-4`}>
           {indicator("/for-you")}
           <FiHome size={24} />
           <span>For You</span>
         </Link>
 
-        <Link href="/library" className={`${linkClasses("/library")} hover:bg-[#f0efef] py-4`}>
+        <Link href="/library" onClick={closeNavbar} className={`${linkClasses("/library")} hover:bg-[#f0efef] py-4`}>
           {indicator("/library")}
           <FiBookOpen size={24} />
           <span>My Library</span>
@@ -152,7 +169,7 @@ export default function LoggedInNavbar() {
 
       {/* -------------------- GROUP 3: SETTINGS + HELP + LOGOUT -------------------- */}
       <div className={`mt-auto px-4 text-[#032b41] ${isPlayerPage ? "-translate-y-[80px]" : ""}`}>
-        <Link href="/settings" className={`${linkClasses("/settings")} hover:bg-[#f0efef] py-4`}>
+        <Link href="/settings" onClick={closeNavbar} className={`${linkClasses("/settings")} hover:bg-[#f0efef] py-4`}>
           {indicator("/settings")}
           <FiSettings size={24} />
           <span>Settings</span>
@@ -170,12 +187,16 @@ export default function LoggedInNavbar() {
           <span>Logout</span>
         </button>
         ):(
-        <button className="flex items-center gap-3 text-[16px] hover:bg-[#f0efef] py-4 w-full" onClick={() => dispatch(openModal("login"))}>
+        <button className="flex items-center gap-3 text-[16px] hover:bg-[#f0efef] py-4 w-full" onClick={() => {
+          dispatch(openModal("login"));
+          closeNavbar();
+        }}>
           <div className="w-1 h-6" />
           <FiLogOut size={24} />
           <span>Login</span>
         </button>)}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

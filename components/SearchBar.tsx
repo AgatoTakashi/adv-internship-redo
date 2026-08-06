@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { useDispatch } from "react-redux";
+import { toggleNavbarVisibility } from "@/store/navbarSlice";
 import { Book } from "@/types/Book";
 import { GoClock } from "react-icons/go";
 import AudioDuration from "./AudioDuration";
@@ -11,6 +14,7 @@ import { FaX } from "react-icons/fa6";
 import { SearchResultsSkeleton } from "./Skeleton";
 
 export default function SearchBar() {
+  const dispatch = useDispatch();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [results, setResults] = useState<Book[]>([]);
@@ -75,7 +79,7 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="relative w-full flex justify-end">
+    <div className="absolute top-5 right-5 w-full flex justify-end items-center">
       <div className="w-[340px] relative">
         <div className="absolute w-[24px] right-3 top-1/2 -translate-y-1/2 pl-[8px] border-l">
           {!query? <FiSearch />: <FaX onClick={handleClose} /> }
@@ -88,6 +92,15 @@ export default function SearchBar() {
           className="w-full rounded-md border border-gray-300 pl-5 pr-3 py-2 text-sm bg-[#f1f6f4]"
         />
       </div>
+
+      <button
+        type="button"
+        onClick={() => dispatch(toggleNavbarVisibility())}
+        className="md:hidden ml-4 text-[24px]"
+        aria-label="Toggle navigation"
+      >
+        <RxHamburgerMenu />
+      </button>
 
       {query && (
         <div className="absolute right-0 top-full z-20 mt-2 p-4 max-w-[440px] w-full rounded-lg border border-gray-200 bg-white shadow-lg">

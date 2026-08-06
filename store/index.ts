@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import modalReducer from "./modalSlice";
 import authReducer from "./authSlice";
+import navbarReducer from "./navbarSlice";
 
 export const store = configureStore({
   reducer: {
     modal: modalReducer,
     auth: authReducer,
+    navbar: navbarReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
