@@ -63,6 +63,26 @@ const normalizeSubscription = (
   };
 };
 
+const resolveSubscription = (
+  sources: Array<SubscriptionSummary | null>
+): SubscriptionSummary | null => {
+  for (const source of sources) {
+    if (!source) continue;
+
+    const hasPlan = Boolean(source.planName && source.planName.trim());
+    const hasActiveStatus = Boolean(
+      source.status && source.status.trim() && !source.status.toLowerCase().includes("no active")
+    );
+    const hasPeriodEnd = Boolean(source.currentPeriodEnd);
+
+    if (hasPlan || hasActiveStatus || hasPeriodEnd) {
+      return source;
+    }
+  }
+
+  return sources.find(Boolean) ?? null;
+};
+
 export default function SettingsPage() {
   const currentUser = useSelector((state: RootState) => state.auth.user) as
     | { uid?: string; email?: string | null }
@@ -83,33 +103,35 @@ export default function SettingsPage() {
     setLoading(true);
 
     const unsubscribeFns: Array<() => void> = [];
+    const sourceStates: Array<SubscriptionSummary | null> = [null, null, null];
 
-    const updateSubscription = (nextSubscription: SubscriptionSummary | null) => {
+    const updateSubscription = () => {
+      const nextSubscription = resolveSubscription(sourceStates);
       setSubscription(nextSubscription ?? getDefaultSubscription());
       setLoading(false);
     };
 
     const userDocUnsub = onSnapshot(doc(db, "users", uid), (snapshot) => {
       const data = snapshot.data();
-      const normalized = normalizeSubscription(data);
-      updateSubscription(normalized);
+      sourceStates[0] = normalizeSubscription(data);
+      updateSubscription();
     });
 
     const customerDocUnsub = onSnapshot(doc(db, "customers", uid), (snapshot) => {
       const data = snapshot.data();
-      const normalized = normalizeSubscription(data);
-      updateSubscription(normalized);
+      sourceStates[1] = normalizeSubscription(data);
+      updateSubscription();
     });
 
     const subscriptionsCollectionUnsub = onSnapshot(
       collection(db, "customers", uid, "subscriptions"),
       (snapshot) => {
         const rows = snapshot.docs.map((docItem) => docItem.data());
-        const normalized = rows.length
+        sourceStates[2] = rows.length
           ? normalizeSubscription(rows[0] as Record<string, unknown>)
           : null;
 
-        updateSubscription(normalized);
+        updateSubscription();
       }
     );
 

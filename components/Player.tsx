@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { BsPauseCircle, BsPlayCircle } from "react-icons/bs";
 import { TbRewindBackward10, TbRewindForward10 } from "react-icons/tb";
+import { RootState } from "@/store";
+import { db } from "@/app/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface PlayerProps {
   id?: string;
@@ -17,6 +21,9 @@ interface BookData {
 }
 
 export default function Player({ id }: PlayerProps) {
+  const currentUser = useSelector((state: RootState) => state.auth.user) as
+    | { uid?: string; email?: string | null }
+    | null;
   const [book, setBook] = useState<BookData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -59,9 +66,52 @@ export default function Player({ id }: PlayerProps) {
       setDuration(audioElement.duration || 0);
     };
 
-    const onEnded = () => {
+    const onEnded = async () => {
       setIsPlaying(false);
       setProgress(0);
+
+      if (!currentUser?.uid || !id || !book) return;
+
+      try {
+        const localKey = `summarist-library-${currentUser.uid}`;
+        const currentLibrary = (() => {
+          if (typeof window === "undefined") return {};
+          try {
+            const stored = window.localStorage.getItem(localKey);
+            return stored ? JSON.parse(stored) : {};
+          } catch {
+            return {};
+          }
+        })();
+
+        const updatedLibrary = {
+          ...currentLibrary,
+          [id]: {
+            id,
+            title: book.title,
+            author: book.author,
+            imageLink: book.imageLink,
+            audioLink: book.audioLink,
+            saved: true,
+            finished: true,
+            finishedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        };
+
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(localKey, JSON.stringify(updatedLibrary));
+        }
+
+        if (db) {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          const existingLibrary = (userSnap.data()?.library as Record<string, unknown> | undefined) || {};
+          await setDoc(userDocRef, { library: { ...existingLibrary, ...updatedLibrary } }, { merge: true });
+        }
+      } catch (error) {
+        console.error("Failed to mark book as finished", error);
+      }
     };
 
     audioElement.addEventListener("timeupdate", updateProgress);

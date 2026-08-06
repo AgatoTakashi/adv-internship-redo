@@ -6,19 +6,9 @@ export default function ForYouPage() {
     <div className="space-y-10">
       <SelectedBook />
 
-      <BookList
-        title="Recommended For You"
-        subtitle="We think you'll like these"
-        status="recommended"
-        variant="horizontal"
-      />
+      <BookList title="Recommended For You" status="recommended" />
 
-      <BookList
-        title="Suggested Books"
-        subtitle="Browse those books"
-        status="suggested"
-        variant="grid"
-      />
+      <BookList title="Suggested Books" status="suggested" />
     </div>
   );
 }

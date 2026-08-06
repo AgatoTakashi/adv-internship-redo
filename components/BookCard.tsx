@@ -97,32 +97,30 @@ export default function BookCard({ book }: { book: Book }) {
 
   return (
     <Link href={`/book/${book.id}`} className="block">
-      <div className="relative bg-white p-3 hover:bg-[#f1f6f4] transition cursor-pointer w-[196px] h-[386px] flex-shrink-0">
-        <div className="flex justify-center mb-4">
+      <div className="relative bg-white p-2.5 hover:bg-[#f1f6f4] transition cursor-pointer w-[168px] h-[330px] flex-shrink-0">
+        <div className="flex justify-center mb-3">
           <Image
             src={book.imageLink}
             alt={book.title}
-            width={172}
-            height={172}
-            className=""
+            width={144}
+            height={144}
+            className="object-cover"
           />
         </div>
 
-        <h3 className="text-[#032b41] font-semibold text-[16px] leading-tight mb-1">
+        <h3 className="text-[#032b41] font-semibold text-[14px] leading-tight mb-1 break-words whitespace-normal">
           {book.title}
         </h3>
 
-        <p className="text-[#394547] font-light text-[14px] mb-1">{book.author}</p>
-
-        <p className="text-[14px] mb-1 leading-tight">{book.subTitle}</p>
+        <p className="text-[#394547] font-light text-[13px] mb-1">{book.author}</p>
 
         <div className="div flex font-light">
           <div className="div flex items-center mr-[8px]">
             <GoClock className="text-[16px] mr-[4px]" />
-            <AudioDuration audioLink={book.audioLink} formatter={formatTime} className="text-[14px]" />
+            <AudioDuration audioLink={book.audioLink} formatter={formatTime} className="text-[12px]" />
           </div>
           <div className="div flex items-center">
-            <CiStar className="text-[16px] mr-[4px]" /><p className="text-[14px]">{book.averageRating}</p>
+            <CiStar className="text-[16px] mr-[4px]" /><p className="text-[12px]">{book.averageRating}</p>
           </div>
         </div>
 

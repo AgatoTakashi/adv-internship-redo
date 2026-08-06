@@ -13,7 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { openModal } from "@/store/modalSlice";
 import { db } from "@/app/firebase/client";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { FaBookmark } from "react-icons/fa";
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
@@ -29,6 +30,8 @@ export default function BookPage({ params }: BookPageProps) {
   const [id, setId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [planName, setPlanName] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -114,6 +117,7 @@ export default function BookPage({ params }: BookPageProps) {
 
     if (!uid || !db) {
       setPlanName("");
+      setIsSaved(false);
       return;
     }
 
@@ -189,6 +193,138 @@ export default function BookPage({ params }: BookPageProps) {
     }
   };
 
+  const handleLibraryToggle = async () => {
+    if (!currentUser?.uid || !book) {
+      if (!currentUser) {
+        dispatch(openModal("login"));
+      }
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const uid = currentUser.uid;
+      const localKey = `summarist-library-${uid}`;
+
+      const currentLibrary = (() => {
+        if (typeof window !== "undefined") {
+          try {
+            const stored = window.localStorage.getItem(localKey);
+            if (stored) {
+              return JSON.parse(stored);
+            }
+          } catch {
+            return {};
+          }
+        }
+        return {};
+      })();
+
+      const updatedLibrary = { ...currentLibrary };
+
+      if (isSaved) {
+        delete updatedLibrary[book.id];
+      } else {
+        updatedLibrary[book.id] = {
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          imageLink: book.imageLink,
+          audioLink: book.audioLink,
+          totalRating: book.totalRating,
+          averageRating: book.averageRating,
+          saved: true,
+          finished: false,
+          savedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(localKey, JSON.stringify(updatedLibrary));
+      }
+
+      if (db) {
+        const userDocRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userDocRef);
+        const existingLibrary = (userSnap.data()?.library as Record<string, unknown> | undefined) || {};
+        const mergedLibrary = { ...existingLibrary, ...updatedLibrary };
+
+        if (isSaved) {
+          delete mergedLibrary[book.id];
+        }
+
+        await setDoc(userDocRef, { library: mergedLibrary }, { merge: true });
+      }
+
+      setIsSaved(!isSaved);
+    } catch (error) {
+      console.error("Library update failed", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    const uid = currentUser?.uid;
+
+    if (!uid || !db || !book?.id) {
+      setIsSaved(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const checkLibraryStatus = async () => {
+      try {
+        const localKey = `summarist-library-${uid}`;
+        const localLibrary = (() => {
+          if (typeof window === "undefined") return {};
+          try {
+            const stored = window.localStorage.getItem(localKey);
+            return stored ? JSON.parse(stored) : {};
+          } catch {
+            return {};
+          }
+        })();
+
+        if (localLibrary[book.id]) {
+          if (isMounted) {
+            setIsSaved(Boolean(localLibrary[book.id].saved));
+          }
+          return;
+        }
+
+        if (!db) {
+          if (isMounted) {
+            setIsSaved(false);
+          }
+          return;
+        }
+
+        const userDocRef = doc(db, "users", uid);
+        const snap = await getDoc(userDocRef);
+        if (isMounted && snap.exists()) {
+          const library = (snap.data()?.library as Record<string, { saved?: boolean }> | undefined) || {};
+          setIsSaved(Boolean(library[book.id]?.saved));
+        } else if (isMounted) {
+          setIsSaved(false);
+        }
+      } catch {
+        if (isMounted) {
+          setIsSaved(false);
+        }
+      }
+    };
+
+    checkLibraryStatus();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [book?.id, currentUser?.uid]);
+
   if (isLoading && !book) {
     return <BookDetailSkeleton />;
   }
@@ -255,9 +391,13 @@ export default function BookPage({ params }: BookPageProps) {
         </div>
 
         {/* Save */}
-        <div className="flex items-center text-blue-600 text-[18px] font-bold mt-[24px] mb-[32px]">
-          <CiBookmark className="text-[24px] mr-[4px]" /> Add title to My Library
-        </div>
+        <button
+          onClick={handleLibraryToggle}
+          disabled={isSaving}
+          className="flex items-center text-blue-600 text-[18px] font-bold mt-[24px] mb-[32px] disabled:opacity-60"
+        >
+          {isSaved ? (<><FaBookmark className="text-[24px] mr-[4px]" /> Saved in My Library</>) : (<><CiBookmark className="text-[24px] mr-[4px]" /> Add title to My Library</>)}
+        </button>
 
         {/* What's it about */}
         <h2 className="text-[22px] font-semibold text-[#032b41] mb-2">
