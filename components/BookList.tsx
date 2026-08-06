@@ -7,10 +7,12 @@ import { BookCardSkeleton } from "./Skeleton";
 
 export default function BookList({
   title,
+  subtitle,
   status,
   books: providedBooks,
 }: {
   title: string;
+  subtitle?: string;
   status: "recommended" | "suggested";
   books?: Book[];
 }) {
@@ -77,7 +79,7 @@ export default function BookList({
             <h2 className="text-[22px] font-semibold text-[#032b41]">{title}</h2>
           </div>
           <p className="mb-6 font-light text-slate-500">
-            No books yet.
+            {subtitle ?? "No books yet."}
           </p>
         </div>
       </section>
@@ -91,7 +93,7 @@ export default function BookList({
           <h2 className="text-[22px] font-semibold text-[#032b41]">{title}</h2>
         </div>
         <p className="font-light mb-6">
-          {books.length} {books.length === 1 ? "book" : "books"}
+          {subtitle ?? `${books.length} ${books.length === 1 ? "book" : "books"}`}
         </p>
 
         <div className="flex flex-wrap gap-4 whitespace-nowrap pb-2">
