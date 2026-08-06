@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { RxHamburgerMenu } from "react-icons/rx";
+import { useDispatch } from "react-redux";
+import { toggleNavbarVisibility } from "@/store/navbarSlice";
 import { Book } from "@/types/Book";
 import { GoClock } from "react-icons/go";
 import AudioDuration from "./AudioDuration";
@@ -12,6 +14,7 @@ import { FaX } from "react-icons/fa6";
 import { SearchResultsSkeleton } from "./Skeleton";
 
 export default function SearchBar() {
+  const dispatch = useDispatch();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [results, setResults] = useState<Book[]>([]);
@@ -90,7 +93,14 @@ export default function SearchBar() {
         />
       </div>
 
-      <RxHamburgerMenu className="md:hidden ml-4 text-[24px]" />
+      <button
+        type="button"
+        onClick={() => dispatch(toggleNavbarVisibility())}
+        className="md:hidden ml-4 text-[24px]"
+        aria-label="Toggle navigation"
+      >
+        <RxHamburgerMenu />
+      </button>
 
       {query && (
         <div className="absolute right-0 top-full z-20 mt-2 p-4 max-w-[440px] w-full rounded-lg border border-gray-200 bg-white shadow-lg">
