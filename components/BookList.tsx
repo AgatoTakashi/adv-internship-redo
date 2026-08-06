@@ -77,13 +77,13 @@ export default function BookList({
         <p className="font-light mb-6">{subtitle}</p>
 
         {variant === "horizontal" ? (
-          <div className="flex overflow-hidden">
+          <div className="flex">
             {books.slice(0, 5).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>
         ) : (
-          <div className="flex overflow-hidden">
+          <div className="flex">
             {books.slice(0, 5).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
